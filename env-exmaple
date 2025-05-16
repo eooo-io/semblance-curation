@@ -1,0 +1,38 @@
+# Argilla settings
+
+ARGILLA_PORT=6900 
+ARGILLA_AUTH_SECRET_KEY=your-secret-key-here # Replace with a secure key (e.g., a random 32-character string)
+
+# Elasticsearch settings
+
+ELASTICSEARCH_PORT=9200
+ES_JAVA_OPTS=-Xms512m -Xmx512m # Adjust based on your memory requirements
+
+# Weaviate settings
+
+WEAVIATE_PORT=8080
+WEAVIATE_QUERY_DEFAULTS_LIMIT=20
+
+# PostgreSQL settings
+
+POSTGRES_PORT=5432
+POSTGRES_USER=ezra
+POSTGRES_PASSWORD=securepassword123 # Replace with a secure password POSTGRES_DB=curation_db
+
+# Redis settings
+
+REDIS_PORT=6379
+
+# MinIO settings
+
+MINIO_PORT=9000 MINIO_CONSOLE_PORT=9001 
+MINIO_ROOT_USER=admin 
+MINIO_ROOT_PASSWORD=minioadmin123 # Replace with a secure password
+
+# Ollama settings
+
+OLLAMA_PORT=11434
+
+# Jupyter Notebook settings
+
+JUPYTER_PORT=8888

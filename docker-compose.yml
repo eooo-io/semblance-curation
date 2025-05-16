@@ -1,0 +1,134 @@
+version: '3.8'
+
+services:
+  # Argilla for data curation and annotation
+  argilla:
+    image: argilla/argilla-server:latest
+    environment:
+      - ARGILLA_ELASTICSEARCH=elasticsearch:${ELASTICSEARCH_PORT}
+      - ARGILLA_AUTH_SECRET_KEY=${ARGILLA_AUTH_SECRET_KEY}
+    ports:
+      - "${ARGILLA_PORT}:6900"
+    depends_on:
+      - elasticsearch
+    volumes:
+      - argilla-data:/app/data
+    networks:
+      - curation-net
+
+  # Elasticsearch for Argilla's backend search
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.10.4
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=${ES_JAVA_OPTS}"
+    ports:
+      - "${ELASTICSEARCH_PORT}:9200"
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+    networks:
+      - curation-net
+
+  # Weaviate for vector storage and retrieval
+  weaviate:
+    image: semitechnologies/weaviate:1.23.0
+    environment:
+      - QUERY_DEFAULTS_LIMIT=${WEAVIATE_QUERY_DEFAULTS_LIMIT}
+      - AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED=true
+      - PERSISTENCE_DATA_PATH=/var/lib/weaviate
+    ports:
+      - "${WEAVIATE_PORT}:8080"
+    volumes:
+      - weaviate-data:/var/lib/weaviate
+    networks:
+      - curation-net
+
+  # PostgreSQL for structured data storage
+  postgres:
+    image: postgres:16
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - curation-net
+
+  # Redis for caching
+  redis:
+    image: redis:7
+    ports:
+      - "${REDIS_PORT}:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - curation-net
+
+  # MinIO for object storage (voice/video data)
+  minio:
+    image: minio/minio:latest
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    ports:
+      - "${MINIO_PORT}:9000"
+      - "${MINIO_CONSOLE_PORT}:9001"
+    command: server /data --console-address ":${MINIO_CONSOLE_PORT}"
+    volumes:
+      - minio-data:/data
+    networks:
+      - curation-net
+
+  # Ollama for running lightweight LLMs locally
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "${OLLAMA_PORT}:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    # Enable GPU support for your GPU (assumes NVIDIA drivers and Docker GPU runtime are installed)
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [gpu]
+              count: 1
+    networks:
+      - curation-net
+
+  # Jupyter Notebook for Python scripting and interaction
+  jupyter:
+    image: jupyter/scipy-notebook:latest
+    ports:
+      - "${JUPYTER_PORT}:8888"
+    volumes:
+      - ./notebooks:/home/jovyan/work
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+    depends_on:
+      - argilla
+      - weaviate
+      - postgres
+      - redis
+      - minio
+      - ollama
+    networks:
+      - curation-net
+
+volumes:
+  argilla-data:
+  es-data:
+  weaviate-data:
+  postgres-data:
+  redis-data:
+  minio-data:
+  ollama-data:
+
+networks:
+  curation-net:
+    driver: bridge
