@@ -1,57 +1,56 @@
-# Semblance Data Curation Workflow
+# 📚 Semblance Data Curation
 
-> Data ingestion, document parsing, and indexing backend for the Semblance AI stack. Supports multi-format ingestion and both full-text and semantic (vector) search. Built for high-fidelity document curation pipelines.
-> **Data ingestion, parsing, and indexing backend for the Semblance AI stack.**
-> Supports multi-format ingestion with both full-text and semantic (vector) search capabilities. Built for high-fidelity document curation pipelines.
+> **Data ingestion, parsing, and indexing backend for the Semblance AI stack.**  
+> Built for high-fidelity document pipelines with both full-text and semantic search capabilities, annotation support, and automation workflows.
 
-[![Docker Compose](https://img.shields.io/badge/Docker_Compose-Orchestration-2496ED?logo=docker&logoColor=white)](https://docs.docker.com/compose/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Metadata-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-[![pgvector](https://img.shields.io/badge/pgvector-Similarity-6B7280?logo=postgresql&logoColor=white)](https://github.com/pgvector/pgvector)
-[![Elasticsearch](https://img.shields.io/badge/Elasticsearch-Full_Text_Search-005571?logo=elasticsearch&logoColor=white)](https://www.elastic.co/)
-[![Weaviate](https://img.shields.io/badge/Weaviate-Semantic_Indexing-4B2EAA?logo=weaviate&logoColor=white)](https://weaviate.io/)
-[![MinIO](https://img.shields.io/badge/MinIO-Object_Store-C72E49?logo=minio&logoColor=white)](https://min.io/)
-[![Label Studio](https://img.shields.io/badge/Label_Studio-Annotation-009688?logo=labelstudio&logoColor=white)](https://labelstud.io/)
-[![Argilla](https://img.shields.io/badge/Argilla-Feedback_Loop-F8004C?logo=argilla&logoColor=white)](https://argilla.io/)
-[![n8n](https://img.shields.io/badge/n8n-Workflow_Automation-FF7420?logo=n8n&logoColor=white)](https://n8n.io/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-2EA44F?logo=mit&logoColor=white)](./LICENSE)
+---
+[![Docker Compose](https://img.shields.io/badge/docker--compose-🛠️%20orchestrated-blue)](https://docs.docker.com/compose/)
+[![PostgreSQL](https://img.shields.io/badge/postgres-💾%20metadata-informational)](https://www.postgresql.org/)
+[![pgvector](https://img.shields.io/badge/pgvector-🧭%20similarity-9cf)](https://github.com/pgvector/pgvector)
+[![Elasticsearch](https://img.shields.io/badge/elasticsearch-🔍%20full--text--search-orange)](https://www.elastic.co/)
+[![Weaviate](https://img.shields.io/badge/weaviate-🧠%20semantic--indexing-blueviolet)](https://weaviate.io/)
+[![MinIO](https://img.shields.io/badge/minio-📦%20object--store-yellow)](https://min.io/)
+[![Label Studio](https://img.shields.io/badge/label--studio-🖍️%20annotation-green)](https://labelstud.io/)
+[![Argilla](https://img.shields.io/badge/argilla-🔁%20feedback--loop-critical)](https://argilla.io/)
+[![n8n](https://img.shields.io/badge/n8n-🤖%20workflow--automation-blue)](https://n8n.io/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-success.svg)](./LICENSE)
 
 ---
 
 ## Overview
 
-Semblance Curation is responsible for:
+Semblance Curation is the document preparation and ingestion subsystem of the Semblance AI project. It handles:
 
-* **Document Ingestion**: Uploading and storing raw documents.
-* **Parsing**: Extracting text and metadata from various document formats.
-* **Indexing**: Enabling both keyword-based and semantic search capabilities.
-* **Annotation**: Facilitating human-in-the-loop and model-in-the-loop annotations.
-* **Automation**: Orchestrating workflows for seamless document processing.
+- **Multi-format ingestion**
+- **Semantic + keyword search**
+- **Human and LLM annotation**
+- **Automated document workflows**
 
 ---
 
 ## Stack Components
 
-| Service             | Description                                                                                         |
-| ------------------- | --------------------------------------------------------------------------------------------------- |
-| **MinIO**           | S3-compatible object storage for raw document uploads.                                              |
-| **document-parser** | Parses PDFs, EPUBs, HTML, etc., into plaintext.                                                     |
-| **PostgreSQL**      | Stores metadata and document registry.                                                              |
-| **pgvector**        | Adds vector similarity search capabilities to PostgreSQL.                                           |
-| **Elasticsearch**   | Provides full-text keyword-based search.                                                            |
-| **Weaviate**        | Offers vector-based semantic search.                                                                |
-| **weaviate-setup**  | Bootstraps schema and configuration into Weaviate.                                                  |
-| **curation-engine** | Orchestrates ingestion and tracking (in development).                                               |
-| **Label Studio**    | Web-based UI for human-in-the-loop annotation.                                                      |
-| **Argilla**         | Dataset-oriented annotation & feedback platform with LLM integration support.                       |
-| **n8n**             | Low-code workflow automation engine for orchestrating ingestion, indexing, and annotation triggers. |
+| Service             | Description |
+|---------------------|-------------|
+| **MinIO**           | S3-compatible object storage for raw document uploads. |
+| **document-parser** | Converts documents (PDF, EPUB, HTML, etc.) into clean plaintext. |
+| **PostgreSQL**      | Metadata storage, ingestion tracking. |
+| **pgvector**        | Adds vector search support to Postgres. |
+| **Elasticsearch**   | Keyword-based search engine. |
+| **Weaviate**        | Semantic vector search with schema support. |
+| **weaviate-setup**  | Schema/bootstrap script for Weaviate. |
+| **curation-engine** | Orchestration layer for ingestion & sync logic (WIP). |
+| **Label Studio**    | Manual UI for human annotations. |
+| **Argilla**         | Feedback & annotation for model tuning. |
+| **n8n**             | Automation engine for workflow triggers & chaining. |
 
 ---
 
-## 🕸️ Architecture Diagram
+## Architecture Diagram
 
 ```mermaid
 graph TD
-    A[Upload File] --> B[MinIO Object Storage]
+    A[Upload File] --> B[MinIO]
     B --> C[document-parser]
     C --> D[PostgreSQL]
     C --> E[Elasticsearch]
@@ -66,31 +65,25 @@ graph TD
 
 ---
 
-## Workflow Summary
+## Workflow
 
-1. **Upload**: Files are uploaded to MinIO (`/uploads` bucket).
-2. **Parse**: `document-parser` extracts text and metadata.
-3. **Store**: Outputs are stored in PostgreSQL, tracking status/state.
-4. **Index**:
-
-   * **Elasticsearch**: For full-text keyword-based search.
-   * **Weaviate**: For vector-based semantic search.
-5. **Annotate**:
-
-   * **Label Studio**: For human-in-the-loop annotations.
-   * **Argilla**: For model-in-the-loop feedback and fine-tuning data collection.
-6. **Automate**: `n8n` orchestrates workflows, triggers, and integrations.
+1. **Upload** to MinIO
+2. **Parse** via document-parser
+3. **Store** metadata + content in PostgreSQL
+4. **Index** to Elastic + Weaviate
+5. **Annotate** via Label Studio or Argilla
+6. **Automate** with n8n webhooks or scheduled tasks
 
 ---
 
-##  Getting Started
+## Getting Started
 
-###  Prerequisites
+### Prerequisites
 
-* Docker & Docker Compose installed.
-* At least 6–8 GB RAM available (Weaviate and Elasticsearch are resource-intensive).
+- Docker + Docker Compose
+- 6–8 GB RAM minimum (Weaviate + Elastic)
 
-### Quickstart
+### Setup
 
 ```bash
 git clone https://github.com/eooo-io/semblance-curation.git
@@ -101,16 +94,12 @@ docker-compose up --build
 
 ---
 
-## ⚙️ Configuration
+## Environment Variables
 
-### Environment Variables
-
-All secrets and configurations are stored in `.env` and used by `docker-compose`.
-
-Example `.env` file:
+`.env-example`:
 
 ```dotenv
-# MinIO (S3-compatible storage)
+# MinIO (S3-compatible)
 MINIO_ROOT_USER=admin
 MINIO_ROOT_PASSWORD=admin123
 
@@ -119,50 +108,66 @@ POSTGRES_USER=curation
 POSTGRES_PASSWORD=curation
 POSTGRES_DB=curation
 
-# n8n Automation
+# n8n Workflow UI
 N8N_USER=admin
 N8N_PASS=admin123
 ```
-
-> **Note**: For production use, consider migrating secrets to Docker secrets or using environment variable overrides.
 
 ---
 
 ## Service Access
 
-| Service          | URL                                            | Default Credentials         |
-| ---------------- | ---------------------------------------------- | --------------------------- |
-| MinIO            | [http://localhost:9000](http://localhost:9000) | `admin` / `admin123`        |
-| Weaviate Console | [http://localhost:8080](http://localhost:8080) | None (local access only)    |
-| Elasticsearch    | [http://localhost:9200](http://localhost:9200) | `elastic` / `changeme`      |
-| PostgreSQL       | localhost:5432                                 | `curation` / `curation`     |
-| Label Studio     | [http://localhost:8081](http://localhost:8081) | Set on first run (admin UI) |
-| Argilla          | [http://localhost:6900](http://localhost:6900) | `admin` / `argilla`         |
-| n8n              | [http://localhost:5678](http://localhost:5678) | `admin` / `admin123`        |
+| Tool              | URL                      | Credentials         |
+|-------------------|---------------------------|---------------------|
+| MinIO             | http://localhost:9000     | admin / admin123    |
+| Weaviate UI       | http://localhost:8080     | None                |
+| Elasticsearch     | http://localhost:9200     | elastic / changeme  |
+| PostgreSQL        | localhost:5432            | curation / curation |
+| Label Studio      | http://localhost:8081     | set on first use    |
+| Argilla           | http://localhost:6900     | admin / argilla     |
+| n8n               | http://localhost:5678     | admin / admin123    |
 
 ---
 
-## Roadmap
+## Deployment Targets & Resource Requirements
 
-* [x] MinIO + file upload
-* [x] Parsing service for PDFs, HTML, EPUB
-* [x] Weaviate + Elasticsearch indexing
-* [ ] `curation-engine` service logic (tracking + retry)
-* [ ] Add FastAPI interface for uploads and queries
-* [ ] Add Celery/RQ for background jobs
-* [ ] RBAC & multi-user support
+| Mode              | Target                             | Use Case                              |
+|-------------------|-------------------------------------|----------------------------------------|
+| 🖥️ Local Dev       | Workstation/Laptop (Docker Compose) | Development & testing                 |
+| ☁️ VPS/Bare Metal | Hetzner, EC2, Linode, etc.         | Production self-hosted                |
+| ⚡ Serverless      | FaaS triggers + managed backends    | Doc-by-doc burst processing           |
+
+### Local Dev Requirements
+
+| Resource   | Minimum 🟥        | Recommended 🟩          |
+|------------|-------------------|--------------------------|
+| CPU        | 4 cores            | 8+ physical cores         |
+| RAM        | 8 GB               | 16–32 GB                 |
+| Disk       | 20 GB SSD          | 50–100 GB NVMe           |
+
+### ☁️ VPS/Bare Metal
+
+| Component   | Suggested             |
+|-------------|------------------------|
+| CPU         | 8 vCPU+                |
+| RAM         | 32 GB                  |
+| Disk        | 100 GB SSD/NVMe        |
+| GPU (opt)   | For LLM eval/feedback  |
+
+> 💡 Serverless integration works great for triggering parsing/indexing pipelines via n8n workflows and webhook handlers, while keeping storage/indexing in cloud-native services.
 
 ---
 
-## Related Projects
+## 🧭 Related Repos
 
-* [Semblance AI (orchestration layer)](https://github.com/eooo-io/semblance-ai)
-* [Semblance RAG (retrieval + API)](https://github.com/eooo-io/semblance-rag)
+- [`semblance-ai`](https://github.com/eooo-io/semblance-ai): Orchestration / dashboard
+- [`semblance-rag`](https://github.com/eooo-io/semblance-rag): Retrieval + LLM interface
 
 ---
 
-## License
+## 📜 License
 
-MIT – use freely, modify boldly, attribute generously.
+This project is licensed under the [MIT License](./LICENSE).  
+Use freely, fork loudly, and remember to share knowledge.
 
-
+---
