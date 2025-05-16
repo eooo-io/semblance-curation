@@ -1,134 +1,147 @@
-version: '3.8'
+version: "3.9"
 
 services:
-  # Argilla for data curation and annotation
-  argilla:
-    image: argilla/argilla-server:latest
-    environment:
-      - ARGILLA_ELASTICSEARCH=elasticsearch:${ELASTICSEARCH_PORT}
-      - ARGILLA_AUTH_SECRET_KEY=${ARGILLA_AUTH_SECRET_KEY}
-    ports:
-      - "${ARGILLA_PORT}:6900"
-    depends_on:
-      - elasticsearch
-    volumes:
-      - argilla-data:/app/data
-    networks:
-      - curation-net
 
-  # Elasticsearch for Argilla's backend search
+  minio:
+    image: minio/minio
+    container_name: minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-admin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-admin123}
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    networks:
+      - semblance
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-curation}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-curation}
+      POSTGRES_DB: ${POSTGRES_DB:-curation}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - semblance
+
+  pgvector:
+    image: ankane/pgvector
+    container_name: pgvector
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-curation}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-curation}
+    ports:
+      - "5433:5432"
+    networks:
+      - semblance
+
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.10.4
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
+    container_name: elasticsearch
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
-      - "ES_JAVA_OPTS=${ES_JAVA_OPTS}"
     ports:
-      - "${ELASTICSEARCH_PORT}:9200"
-    volumes:
-      - es-data:/usr/share/elasticsearch/data
+      - "9200:9200"
     networks:
-      - curation-net
+      - semblance
 
-  # Weaviate for vector storage and retrieval
   weaviate:
-    image: semitechnologies/weaviate:1.23.0
+    image: semitechnologies/weaviate:1.24.10
+    container_name: weaviate
+    ports:
+      - "8080:8080"
     environment:
-      - QUERY_DEFAULTS_LIMIT=${WEAVIATE_QUERY_DEFAULTS_LIMIT}
-      - AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED=true
-      - PERSISTENCE_DATA_PATH=/var/lib/weaviate
-    ports:
-      - "${WEAVIATE_PORT}:8080"
+      QUERY_DEFAULTS_LIMIT: 25
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: "true"
+      PERSISTENCE_DATA_PATH: "/var/lib/weaviate"
+      DEFAULT_VECTORIZER_MODULE: "none"
     volumes:
-      - weaviate-data:/var/lib/weaviate
+      - weaviate_data:/var/lib/weaviate
     networks:
-      - curation-net
+      - semblance
 
-  # PostgreSQL for structured data storage
-  postgres:
-    image: postgres:16
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
-    ports:
-      - "${POSTGRES_PORT}:5432"
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-    networks:
-      - curation-net
-
-  # Redis for caching
-  redis:
-    image: redis:7
-    ports:
-      - "${REDIS_PORT}:6379"
-    volumes:
-      - redis-data:/data
-    networks:
-      - curation-net
-
-  # MinIO for object storage (voice/video data)
-  minio:
-    image: minio/minio:latest
-    environment:
-      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
-      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
-    ports:
-      - "${MINIO_PORT}:9000"
-      - "${MINIO_CONSOLE_PORT}:9001"
-    command: server /data --console-address ":${MINIO_CONSOLE_PORT}"
-    volumes:
-      - minio-data:/data
-    networks:
-      - curation-net
-
-  # Ollama for running lightweight LLMs locally
-  ollama:
-    image: ollama/ollama:latest
-    ports:
-      - "${OLLAMA_PORT}:11434"
-    volumes:
-      - ollama-data:/root/.ollama
-    # Enable GPU support for your GPU (assumes NVIDIA drivers and Docker GPU runtime are installed)
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              capabilities: [gpu]
-              count: 1
-    networks:
-      - curation-net
-
-  # Jupyter Notebook for Python scripting and interaction
-  jupyter:
-    image: jupyter/scipy-notebook:latest
-    ports:
-      - "${JUPYTER_PORT}:8888"
-    volumes:
-      - ./notebooks:/home/jovyan/work
-    environment:
-      - JUPYTER_ENABLE_LAB=yes
+  weaviate-setup:
+    build: ./weaviate-setup
+    container_name: weaviate-setup
     depends_on:
-      - argilla
       - weaviate
-      - postgres
-      - redis
-      - minio
-      - ollama
     networks:
-      - curation-net
+      - semblance
+
+  document-parser:
+    build: ./document-parser
+    container_name: document-parser
+    depends_on:
+      - minio
+      - postgres
+    networks:
+      - semblance
+
+  curation-engine:
+    build: ./curation-engine
+    container_name: curation-engine
+    depends_on:
+      - document-parser
+      - postgres
+      - weaviate
+    networks:
+      - semblance
+
+  label-studio:
+    image: heartexlabs/label-studio:latest
+    container_name: label-studio
+    ports:
+      - "8081:8080"
+    volumes:
+      - labelstudio_data:/label-studio/data
+    networks:
+      - semblance
+
+  argilla:
+    image: argilla/argilla-server:latest
+    container_name: argilla
+    ports:
+      - "6900:6900"
+    environment:
+      ARGILLA_LOCAL_AUTH_ENABLED: "true"
+      ARGILLA_LOCAL_AUTH_USERNAME: "admin"
+      ARGILLA_LOCAL_AUTH_PASSWORD: "argilla"
+    networks:
+      - semblance
+
+  n8n:
+    image: n8nio/n8n
+    container_name: n8n
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=${N8N_USER:-admin}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_PASS:-admin123}
+      - DB_TYPE=sqlite
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+    volumes:
+      - n8n_data:/home/node/.n8n
+    networks:
+      - semblance
 
 volumes:
-  argilla-data:
-  es-data:
-  weaviate-data:
-  postgres-data:
-  redis-data:
-  minio-data:
-  ollama-data:
+  minio_data:
+  postgres_data:
+  weaviate_data:
+  labelstudio_data:
+  n8n_data:
 
 networks:
-  curation-net:
+  semblance:
     driver: bridge
