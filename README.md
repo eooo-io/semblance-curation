@@ -1,4 +1,4 @@
-# 📚 Semblance Data Curation
+# Semblance Data Curation Setup
 
 > **Data ingestion, parsing, and indexing backend for the Semblance AI stack.**  
 > Built for high-fidelity document pipelines with both full-text and semantic search capabilities, annotation support, and automation workflows.
@@ -158,14 +158,14 @@ N8N_PASS=admin123
 
 ---
 
-## 🧭 Related Repos
+## Related Repos
 
 - [`semblance-ai`](https://github.com/eooo-io/semblance-ai): Orchestration / dashboard
 - [`semblance-rag`](https://github.com/eooo-io/semblance-rag): Retrieval + LLM interface
 
 ---
 
-## 📜 License
+## License
 
 This project is licensed under the [MIT License](./LICENSE).  
 Use freely, fork loudly, and remember to share knowledge.
