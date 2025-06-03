@@ -1,0 +1,97 @@
+version: "3.8"
+
+services:
+    app:
+        build:
+            target: builder
+        volumes:
+            - .:/app
+            - ~/.cache/pip:/root/.cache/pip
+        environment:
+            - APP_ENV=development
+            - APP_DEBUG=true
+        ports:
+            - "8000:8000" # Documentation port
+
+    postgres:
+        ports:
+            - "${POSTGRES_PORT:-5432}:5432"
+        command:
+            - "postgres"
+            - "-c"
+            - "log_statement=all"
+            - "-c"
+            - "log_destination=stderr"
+
+    elasticsearch:
+        environment:
+            - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+            - "discovery.type=single-node"
+            - "xpack.security.enabled=false" # Disabled for development
+        ports:
+            - "${ELASTICSEARCH_PORT:-9200}:9200"
+            - "9300:9300" # Transport port for development
+
+    redis:
+        command: redis-server --save 60 1 --loglevel debug
+        ports:
+            - "${REDIS_PORT:-6379}:6379"
+
+    minio:
+        ports:
+            - "${MINIO_PORT:-9000}:9000"
+            - "${MINIO_CONSOLE_PORT:-9001}:9001"
+        environment:
+            MINIO_BROWSER_REDIRECT_URL: http://localhost:${MINIO_CONSOLE_PORT:-9001}
+
+    weaviate:
+        environment:
+            - AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED=true # Enabled for development
+            - LOG_LEVEL=debug
+        ports:
+            - "${WEAVIATE_PORT:-8080}:8080"
+
+    ollama:
+        ports:
+            - "${OLLAMA_PORT:-11434}:11434"
+        volumes:
+            - .:/app
+            - ollama_data:/root/.ollama
+        deploy:
+            resources:
+                reservations:
+                    devices:
+                        - driver: nvidia
+                          count: 1
+                          capabilities: [gpu]
+
+    prometheus:
+        command:
+            - --config.file=/etc/prometheus/prometheus.yml
+            - --storage.tsdb.path=/prometheus
+            - --web.console.libraries=/usr/share/prometheus/console_libraries
+            - --web.console.templates=/usr/share/prometheus/consoles
+            - --web.enable-lifecycle # Enable hot reload
+        volumes:
+            - ./prometheus:/etc/prometheus
+            - prometheus_data:/prometheus
+
+    grafana:
+        environment:
+            - GF_AUTH_DISABLE_LOGIN_FORM=true
+            - GF_AUTH_ANONYMOUS_ENABLED=true
+            - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+        volumes:
+            - ./grafana/provisioning:/etc/grafana/provisioning
+            - ./grafana/dashboards:/var/lib/grafana/dashboards
+
+    # Development-only services
+    docs:
+        build:
+            context: .
+            dockerfile: docs/Dockerfile
+        volumes:
+            - ./docs:/docs
+        ports:
+            - "8000:8000"
+        command: serve --dev-addr=0.0.0.0:8000 --watch docs

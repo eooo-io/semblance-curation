@@ -8,6 +8,7 @@
 ## Tech Stack
 
 ### Core Components
+[![Label Studio](https://img.shields.io/badge/Label_Studio-222222.svg?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iI2ZmZiIgZD0iTTEyIDJMMyA3djEwbDkgNSA5LTVWN2wtOS01em0wIDE4LjVMNSAxNy4yVjguOGw3LTMuOSA3IDMuOXY4LjRsLTcgMy45eiIvPjwvc3ZnPg==&logoColor=white)](https://labelstud.io/)
 [![Argilla](https://img.shields.io/badge/Argilla-FF4B4B.svg?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgdmlld0JveD0iMCAwIDI0IDI0Ij48L3N2Zz4=&logoColor=white)](https://argilla.io/)
 [![Weaviate](https://img.shields.io/badge/Weaviate-3b82f6.svg?style=for-the-badge&logo=weaviate&logoColor=white)](https://weaviate.io/)
 [![Ollama](https://img.shields.io/badge/Ollama-black.svg?style=for-the-badge&logo=llama&logoColor=white)](https://ollama.ai/)

@@ -1,38 +1,81 @@
-# Argilla settings
+# Application settings
+APP_ENV=development
+APP_DEBUG=true
+APP_SECRET_KEY=your-secret-key-here # Replace with a secure key
 
-ARGILLA_PORT=6900 
-ARGILLA_AUTH_SECRET_KEY=your-secret-key-here # Replace with a secure key (e.g., a random 32-character string)
+# Label Studio settings
+LABEL_STUDIO_PORT=8080
+LABEL_STUDIO_USERNAME=admin@example.com
+LABEL_STUDIO_PASSWORD=admin # Replace with a secure password
+LABEL_STUDIO_BASE_DATA_DIR=/label-studio/data
+LABEL_STUDIO_LOCAL_FILES_SERVING_ENABLED=true
+LABEL_STUDIO_LOCAL_FILES_DOCUMENT_ROOT=/label-studio/data
+LABEL_STUDIO_POSTGRES_DB=label_studio
+LABEL_STUDIO_REDIS_HOST=localhost
+LABEL_STUDIO_REDIS_PORT=6379
+
+# Argilla settings
+ARGILLA_PORT=6900
+ARGILLA_AUTH_SECRET_KEY=your-secret-key-here # Replace with a secure key
 
 # Elasticsearch settings
-
 ELASTICSEARCH_PORT=9200
+ELASTICSEARCH_HOST=localhost
 ES_JAVA_OPTS=-Xms512m -Xmx512m # Adjust based on your memory requirements
+ELASTIC_PASSWORD=secure-elastic-password # Replace with a secure password
 
 # Weaviate settings
-
 WEAVIATE_PORT=8080
+WEAVIATE_HOST=localhost
 WEAVIATE_QUERY_DEFAULTS_LIMIT=20
+WEAVIATE_AUTHENTICATION_APIKEY=your-api-key-here # Replace with a secure key
 
 # PostgreSQL settings
-
+POSTGRES_HOST=localhost
 POSTGRES_PORT=5432
-POSTGRES_USER=ezra
-POSTGRES_PASSWORD=securepassword123 # Replace with a secure password POSTGRES_DB=curation_db
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=securepassword123 # Replace with a secure password
+POSTGRES_DB=curation_db
 
 # Redis settings
-
+REDIS_HOST=localhost
 REDIS_PORT=6379
+REDIS_PASSWORD=secure-redis-password # Replace with a secure password
 
 # MinIO settings
-
-MINIO_PORT=9000 MINIO_CONSOLE_PORT=9001 
-MINIO_ROOT_USER=admin 
+MINIO_HOST=localhost
+MINIO_PORT=9000
+MINIO_CONSOLE_PORT=9001
+MINIO_ROOT_USER=admin
 MINIO_ROOT_PASSWORD=minioadmin123 # Replace with a secure password
+MINIO_REGION=us-east-1
 
 # Ollama settings
-
+OLLAMA_HOST=localhost
 OLLAMA_PORT=11434
 
-# Jupyter Notebook settings
-
+# Jupyter settings
 JUPYTER_PORT=8888
+JUPYTER_TOKEN=your-secure-token # Replace with a secure token
+
+# MLflow settings
+MLFLOW_PORT=5000
+MLFLOW_TRACKING_URI=http://localhost:5000
+MLFLOW_S3_ENDPOINT_URL=http://localhost:9000
+MLFLOW_ARTIFACTS_PATH=/app/mlflow-artifacts
+
+# Monitoring stack settings
+PROMETHEUS_PORT=9090
+GRAFANA_PORT=3000
+GRAFANA_ADMIN_USER=admin
+GRAFANA_ADMIN_PASSWORD=admin # Replace with a secure password
+LOKI_PORT=3100
+JAEGER_PORT=16686
+
+# NVIDIA settings
+NVIDIA_VISIBLE_DEVICES=all
+NVIDIA_DRIVER_CAPABILITIES=compute,utility
+
+# Docker build settings
+DOCKER_BUILDKIT=1
+COMPOSE_DOCKER_CLI_BUILD=1

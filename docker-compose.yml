@@ -1,145 +1,160 @@
 version: "3.8"
 
 services:
-    # Argilla for data curation and annotation
-    argilla:
-        image: argilla/argilla-server:latest
-        environment:
-            - ARGILLA_ELASTICSEARCH=elasticsearch:${ELASTICSEARCH_PORT}
-            - ARGILLA_AUTH_SECRET_KEY=${ARGILLA_AUTH_SECRET_KEY}
-        ports:
-            - "${ARGILLA_PORT}:6900"
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            target: runtime
+            args:
+                - BUILDKIT_INLINE_CACHE=1
+        image: eooo/seamlance-curation:${TAG:-latest}
+        restart: unless-stopped
+        env_file: .env
         depends_on:
+            - postgres
+            - redis
             - elasticsearch
-        volumes:
-            - argilla-data:/app/data
-        networks:
-            - curation-net
-
-    # Elasticsearch for Argilla's backend search
-    elasticsearch:
-        image: docker.elastic.co/elasticsearch/elasticsearch:8.10.4
-        environment:
-            - discovery.type=single-node
-            - xpack.security.enabled=false
-            - "ES_JAVA_OPTS=${ES_JAVA_OPTS}"
+            - minio
         ports:
-            - "${ELASTICSEARCH_PORT}:9200"
+            - "${LABEL_STUDIO_PORT:-8080}:8080"
+            - "${ARGILLA_PORT:-6900}:6900"
+            - "${JUPYTER_PORT:-8888}:8888"
+            - "${MLFLOW_PORT:-5000}:5000"
         volumes:
-            - es-data:/usr/share/elasticsearch/data
-        networks:
-            - curation-net
-
-    # Weaviate for vector storage and retrieval
-    weaviate:
-        image: semitechnologies/weaviate:1.23.0
-        environment:
-            - QUERY_DEFAULTS_LIMIT=${WEAVIATE_QUERY_DEFAULTS_LIMIT}
-            - AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED=true
-            - PERSISTENCE_DATA_PATH=/var/lib/weaviate
-        ports:
-            - "${WEAVIATE_PORT}:8080"
-        volumes:
-            - weaviate-data:/var/lib/weaviate
-        networks:
-            - curation-net
-
-    # PostgreSQL for structured data storage
-    postgres:
-        image: postgres:16
-        environment:
-            - POSTGRES_USER=${POSTGRES_USER}
-            - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-            - POSTGRES_DB=${POSTGRES_DB}
-        ports:
-            - "${POSTGRES_PORT}:5432"
-        volumes:
-            - postgres-data:/var/lib/postgresql/data
-        networks:
-            - curation-net
-
-    # Redis for caching
-    redis:
-        image: redis:7
-        ports:
-            - "${REDIS_PORT}:6379"
-        volumes:
-            - redis-data:/data
-        networks:
-            - curation-net
-
-    # MinIO for object storage (voice/video data)
-    minio:
-        image: minio/minio:latest
-        environment:
-            - MINIO_ROOT_USER=${MINIO_ROOT_USER}
-            - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
-        ports:
-            - "${MINIO_PORT}:9000"
-            - "${MINIO_CONSOLE_PORT}:9001"
-        command: server /data --console-address ":${MINIO_CONSOLE_PORT}"
-        volumes:
-            - minio-data:/data
-        networks:
-            - curation-net
-
-    # Ollama for running lightweight LLMs locally
-    ollama:
-        image: ollama/ollama:latest
-        ports:
-            - "${OLLAMA_PORT}:11434"
-        volumes:
-            - ollama-data:/root/.ollama
-        # Enable GPU support for your GPU (assumes NVIDIA drivers and Docker GPU runtime are installed)
+            - label_studio_data:/label-studio/data
+            - mlflow_artifacts:/app/mlflow-artifacts
         deploy:
             resources:
                 reservations:
                     devices:
                         - driver: nvidia
+                          count: all
                           capabilities: [gpu]
-                          count: 1
-        networks:
-            - curation-net
 
-    # Jupyter Notebook for Python scripting and interaction
-    jupyter:
-        image: jupyter/scipy-notebook:latest
-        ports:
-            - "${JUPYTER_PORT}:8888"
-        volumes:
-            - ./notebooks:/home/jovyan/work
+    postgres:
+        image: postgres:15-alpine
+        restart: unless-stopped
+        env_file: .env
         environment:
-            - JUPYTER_ENABLE_LAB=yes
-        depends_on:
-            - argilla
-            - weaviate
-            - postgres
-            - redis
-            - minio
-            - ollama
-        networks:
-            - curation-net
-
-    # Documentation with MkDocs Material
-    docs:
-        build:
-            context: .
-            dockerfile: docs/Dockerfile
+            - POSTGRES_DB=${POSTGRES_DB}
+            - POSTGRES_USER=${POSTGRES_USER}
+            - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
         ports:
-            - "8000:8000"
+            - "${POSTGRES_PORT:-5432}:5432"
         volumes:
-            - ./docs:/docs
-        command: serve --dev-addr=0.0.0.0:8000
+            - postgres_data:/var/lib/postgresql/data
+
+    redis:
+        image: redis:7-alpine
+        restart: unless-stopped
+        env_file: .env
+        command: redis-server --requirepass ${REDIS_PASSWORD}
+        ports:
+            - "${REDIS_PORT:-6379}:6379"
+        volumes:
+            - redis_data:/data
+
+    elasticsearch:
+        image: elasticsearch:8.11.1
+        restart: unless-stopped
+        env_file: .env
+        environment:
+            - discovery.type=single-node
+            - ES_JAVA_OPTS=${ES_JAVA_OPTS:-"-Xms512m -Xmx512m"}
+            - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+            - xpack.security.enabled=true
+        ports:
+            - "${ELASTICSEARCH_PORT:-9200}:9200"
+        volumes:
+            - elasticsearch_data:/usr/share/elasticsearch/data
+
+    minio:
+        image: minio/minio
+        restart: unless-stopped
+        env_file: .env
+        command: server /data --console-address ":${MINIO_CONSOLE_PORT:-9001}"
+        environment:
+            - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+            - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+        ports:
+            - "${MINIO_PORT:-9000}:9000"
+            - "${MINIO_CONSOLE_PORT:-9001}:9001"
+        volumes:
+            - minio_data:/data
+
+    weaviate:
+        image: semitechnologies/weaviate:1.24.1
+        restart: unless-stopped
+        env_file: .env
+        environment:
+            - AUTHENTICATION_APIKEY_ENABLED=true
+            - AUTHENTICATION_APIKEY_ALLOWED_KEYS=${WEAVIATE_AUTHENTICATION_APIKEY}
+            - QUERY_DEFAULTS_LIMIT=${WEAVIATE_QUERY_DEFAULTS_LIMIT:-20}
+        ports:
+            - "${WEAVIATE_PORT:-8080}:8080"
+        volumes:
+            - weaviate_data:/var/lib/weaviate
+
+    ollama:
+        image: ollama/ollama:latest
+        restart: unless-stopped
+        env_file: .env
+        ports:
+            - "${OLLAMA_PORT:-11434}:11434"
+        volumes:
+            - ollama_data:/root/.ollama
+
+    prometheus:
+        image: prom/prometheus:latest
+        restart: unless-stopped
+        env_file: .env
+        ports:
+            - "${PROMETHEUS_PORT:-9090}:9090"
+        volumes:
+            - ./prometheus:/etc/prometheus
+            - prometheus_data:/prometheus
+
+    grafana:
+        image: grafana/grafana:latest
+        restart: unless-stopped
+        env_file: .env
+        environment:
+            - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+            - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+        ports:
+            - "${GRAFANA_PORT:-3000}:3000"
+        volumes:
+            - grafana_data:/var/lib/grafana
+
+    loki:
+        image: grafana/loki:latest
+        restart: unless-stopped
+        env_file: .env
+        ports:
+            - "${LOKI_PORT:-3100}:3100"
+        volumes:
+            - loki_data:/loki
+
+    jaeger:
+        image: jaegertracing/all-in-one:latest
+        restart: unless-stopped
+        env_file: .env
+        ports:
+            - "${JAEGER_PORT:-16686}:16686"
+        volumes:
+            - jaeger_data:/badger
 
 volumes:
-    argilla-data:
-    es-data:
-    weaviate-data:
-    postgres-data:
-    redis-data:
-    minio-data:
-    ollama-data:
-
-networks:
-    curation-net:
-        driver: bridge
+    label_studio_data:
+    mlflow_artifacts:
+    postgres_data:
+    redis_data:
+    elasticsearch_data:
+    minio_data:
+    weaviate_data:
+    ollama_data:
+    prometheus_data:
+    grafana_data:
+    loki_data:
+    jaeger_data:
