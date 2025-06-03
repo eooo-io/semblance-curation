@@ -1,0 +1,167 @@
+:root {
+    --md-primary-fg-color: #0A0F1D;
+    --md-primary-fg-color--light: #1F2739;
+    --md-primary-fg-color--dark: #050911;
+    --md-accent-fg-color: #00E0FF;
+    --md-accent-fg-color--transparent: #00E0FF1A;
+    --md-accent-bg-color: #EAF6FF;
+    --md-accent-bg-color--light: #FFFFFF;
+    --md-secondary-fg-color: #1F2739;
+    --md-highlight-fg-color: #00FFA3;
+    --md-warning-fg-color: #FF3C38;
+}
+
+/* Light scheme overrides */
+[data-md-color-scheme="custom-light"] {
+    --md-default-bg-color: #FFFFFF;
+    --md-default-fg-color: #0A0F1D;
+    --md-default-fg-color--light: #1F2739;
+    --md-default-fg-color--lighter: #4A5568;
+    --md-default-fg-color--lightest: #A0AEC0;
+    --md-surface-color: #EAF6FF;
+}
+
+/* Dark scheme overrides */
+[data-md-color-scheme="custom-dark"] {
+    --md-default-bg-color: #0A0F1D;
+    --md-default-fg-color: #FFFFFF;
+    --md-default-fg-color--light: #EAF6FF;
+    --md-default-fg-color--lighter: #CBD5E0;
+    --md-default-fg-color--lightest: #718096;
+    --md-surface-color: #1F2739;
+}
+
+/* Custom components styling */
+
+/* Code blocks */
+.highlight {
+    background-color: var(--md-surface-color);
+    border-radius: 4px;
+}
+
+/* Navigation */
+.md-nav__item .md-nav__link--active {
+    color: var(--md-accent-fg-color);
+}
+
+.md-nav__item .md-nav__link:hover {
+    color: var(--md-highlight-fg-color);
+}
+
+/* Buttons */
+.md-button {
+    background-color: var(--md-primary-fg-color);
+    border-color: var(--md-primary-fg-color);
+    color: white;
+}
+
+.md-button:hover {
+    background-color: var(--md-primary-fg-color--light);
+    border-color: var(--md-accent-fg-color);
+}
+
+.md-button--primary {
+    background-color: var(--md-accent-fg-color);
+    border-color: var(--md-accent-fg-color);
+    color: var(--md-primary-fg-color);
+}
+
+.md-button--primary:hover {
+    background-color: var(--md-highlight-fg-color);
+    border-color: var(--md-highlight-fg-color);
+}
+
+/* Admonitions */
+.md-typeset .admonition {
+    border-left-color: var(--md-accent-fg-color);
+}
+
+.md-typeset .admonition.warning {
+    border-left-color: var(--md-warning-fg-color);
+}
+
+/* Tables */
+.md-typeset table:not([class]) th {
+    background-color: var(--md-primary-fg-color);
+    color: var(--md-default-fg-color--lightest);
+}
+
+.md-typeset table:not([class]) tr:hover {
+    background-color: var(--md-accent-bg-color--transparent);
+}
+
+/* Search */
+.md-search__input {
+    background-color: var(--md-surface-color);
+}
+
+.md-search-result__meta {
+    background-color: var(--md-surface-color);
+}
+
+/* Tabs */
+.md-tabs__link--active {
+    color: var(--md-accent-fg-color);
+}
+
+.md-tabs__link:hover {
+    color: var(--md-highlight-fg-color);
+}
+
+/* Progress bars */
+.progress-label {
+    color: var(--md-primary-fg-color);
+}
+
+.progress-bar {
+    background-color: var(--md-accent-fg-color);
+}
+
+/* Annotations */
+.md-annotation__index {
+    background-color: var(--md-accent-fg-color);
+}
+
+/* Copy code button */
+.md-clipboard {
+    color: var(--md-accent-fg-color);
+}
+
+.md-clipboard:hover {
+    color: var(--md-highlight-fg-color);
+}
+
+/* Version selector */
+.md-version__current {
+    background-color: var(--md-surface-color);
+}
+
+/* Footer */
+.md-footer {
+    background-color: var(--md-primary-fg-color);
+}
+
+.md-footer-nav {
+    background-color: var(--md-primary-fg-color--light);
+}
+
+/* Custom blockquotes */
+.md-typeset blockquote {
+    border-left-color: var(--md-accent-fg-color);
+    background-color: var(--md-surface-color);
+}
+
+/* Custom links */
+.md-content a:not(.md-button) {
+    color: var(--md-accent-fg-color);
+}
+
+.md-content a:not(.md-button):hover {
+    color: var(--md-highlight-fg-color);
+}
+
+/* Custom selection color */
+::selection {
+    background-color: var(--md-accent-fg-color);
+    color: var(--md-primary-fg-color);
+}

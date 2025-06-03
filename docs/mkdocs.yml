@@ -1,0 +1,202 @@
+site_name: Semblance Curation
+site_description: Documentation for the Semblance Curation platform
+site_url: https://docs.semblance-curation.io
+repo_url: https://github.com/yourusername/semblance-curation
+repo_name: semblance-curation
+
+theme:
+  name: material
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.indexes
+    - navigation.top        # Back to top button
+    - navigation.footer    # Next/Previous page in footer
+    - toc.integrate
+    - search.suggest
+    - search.highlight
+    - search.share         # Share search results
+    - content.tabs.link
+    - content.code.annotation
+    - content.code.copy
+    - content.action.edit  # Edit this page button
+    - content.action.view  # View source button
+    - header.autohide     # Hide header on scroll
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: custom-light
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: custom-dark
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  font:
+    text: Roboto
+    code: Roboto Mono
+  icon:
+    repo: fontawesome/brands/github
+    edit: material/pencil
+    view: material/eye
+    previous: material/arrow-left
+    next: material/arrow-right
+
+plugins:
+  - search:
+      separator: '[\s\-,:!=\[\]()"/]+|(?!\b)(?=[A-Z][a-z])|\.(?!\d)|&[lg]t;'
+  - git-revision-date-localized:
+      enable_creation_date: true
+      type: date
+  - minify:
+      minify_html: true
+      minify_js: true
+      minify_css: true
+      htmlmin_opts:
+        remove_comments: true
+  - awesome-pages
+  - redirects:
+      redirect_maps: {}
+  - tags:
+      tags_file: tags.md
+  - social:
+      cards_dir: assets/social
+      cards_color:
+        fill: "#4051B5"
+        text: "#FFFFFF"
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [../src]
+          options:
+            show_source: true
+            show_root_heading: true
+  - pdf-export:
+      combined: true
+  - swagger-ui:
+      spec_url: "openapi.json"
+  - mermaid2:
+      version: 10.2.4
+  - glightbox:
+      touchNavigation: true
+      loop: false
+      effect: zoom
+      width: 100%
+      height: auto
+      zoomable: true
+      draggable: true
+
+extra:
+  analytics:
+    provider: google
+    property: !ENV GOOGLE_ANALYTICS_KEY
+  consent:
+    title: Cookie consent
+    description: >-
+      We use cookies to recognize your repeated visits and preferences, as well
+      as to measure the effectiveness of our documentation and whether users
+      find what they're searching for. With your consent, you're helping us to
+      make our documentation better.
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/yourusername/semblance-curation
+    - icon: fontawesome/brands/docker
+      link: https://hub.docker.com/r/yourusername/semblance-curation
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/semblance-curation
+  version:
+    provider: mike
+    default: latest
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - meta
+  - md_in_html
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.magiclink:
+      repo_url_shorthand: true
+      user: yourusername
+      repo: semblance-curation
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+        - name: python
+          class: python
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+  - pymdownx.snippets:
+      auto_append:
+        - includes/abbreviations.md
+  - pymdownx.critic
+  - pymdownx.critic
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+    - Quick Start: getting-started/quick-start.md
+    - Configuration: getting-started/configuration.md
+  - Deployment:
+    - Local Setup: deployment/local.md
+    - Cloud Providers:
+      - AWS: deployment/cloud/aws.md
+      - GCP: deployment/cloud/gcp.md
+      - Azure: deployment/cloud/azure.md
+  - Features:
+    - Data Management: features/data-management.md
+    - ML Pipelines: features/ml-pipelines.md
+    - Monitoring: features/monitoring.md
+  - Configuration:
+    - Services: configuration/services.md
+    - Security: configuration/security.md
+    - High Availability: configuration/high-availability.md
+  - Examples:
+    - ML Pipelines: examples/ml-pipelines.md
+    - Data Quality: examples/data-quality.md
+    - Monitoring: examples/monitoring.md
+  - API Reference:
+    - REST API: api/rest.md
+    - Python SDK: api/python-sdk.md
+  - Contributing: contributing.md
+
+extra_css:
+  - stylesheets/extra.css
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+  - javascripts/extra.js
