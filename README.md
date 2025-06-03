@@ -30,41 +30,57 @@
 [![Loki](https://img.shields.io/badge/Loki-F5A800.svg?style=for-the-badge&logo=grafana&logoColor=white)](https://grafana.com/oss/loki/)
 [![Jaeger](https://img.shields.io/badge/Jaeger-66CFE3.svg?style=for-the-badge&logo=jaeger&logoColor=white)](https://www.jaegertracing.io/)
 
-A comprehensive platform designed for organizations and researchers who need to build, maintain, and curate their own machine learning datasets. It provides an end-to-end solution for data collection, annotation, preprocessing, and quality control, with built-in support for multi-modal data types.
+A comprehensive platform for building, maintaining, and curating machine learning datasets. It provides an end-to-end solution for data collection, annotation, preprocessing, and quality control, with built-in support for multi-modal data types.
 
 ## Quick Start
 
+### Prerequisites
+- Docker Engine 24.0.0+
+- Docker Compose v2.20.0+
+- NVIDIA GPU (recommended)
+- 32GB RAM minimum
+- 100GB storage minimum
+
+### Installation
+
+1. Clone the repository:
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/semblance-curation.git
+git clone https://github.com/eooo-io/semblance-curation.git
 cd semblance-curation
-
-# Copy and configure environment variables
-cp env-example .env
-# Edit .env with your settings
-
-# Start the services
-docker compose up -d
 ```
+
+2. Copy and configure environment variables:
+```bash
+cp env-example .env
+# Edit .env with your preferred settings
+```
+
+3. Start the services:
+```bash
+# For production
+docker compose up -d
+
+# For development
+docker compose -f docker-compose.yml -f docker-compose.override.yml up -d
+```
+
+4. Access the services:
+- Label Studio: http://localhost:8080
+- Jupyter Lab: http://localhost:8888
+- MinIO Console: http://localhost:9001
+- Grafana: http://localhost:3000
 
 ## Documentation
 
-Comprehensive documentation is available at [docs.semblance-curation.io](https://docs.semblance-curation.io), including:
+For detailed documentation, visit:
+- [Installation Guide](docs/docs/getting-started/installation.md)
+- [Architecture Overview](docs/docs/architecture/overview.md)
+- [Configuration Guide](docs/docs/configuration/index.md)
+- [Deployment Guide](docs/docs/deployment/index.md)
 
-- Detailed installation instructions
-- Configuration guides
-- [Deployment examples](https://docs.semblance-curation.io/deployment/examples) (AWS, GCP, Azure)
-- ML pipeline examples
-- API reference
-- Contributing guidelines
+## License
 
-To run the documentation locally:
-
-```bash
-docker compose up docs
-```
-
-Then visit `http://localhost:8000`
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Features
 
