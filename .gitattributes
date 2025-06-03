@@ -1,0 +1,63 @@
+# Auto detect text files and perform LF normalization
+* text=auto eol=lf
+
+# Docker
+*.dockerfile text
+Dockerfile text
+docker-compose*.yml linguist-detectable=true
+
+# Python
+*.py text diff=python
+*.pyi text diff=python
+*.pyw text diff=python
+*.ipynb linguist-documentation
+requirements*.txt linguist-detectable=true
+Pipfile text
+Pipfile.lock text
+pyproject.toml linguist-detectable=true
+poetry.lock text
+
+# Jupyter Notebooks
+*.ipynb linguist-documentation
+notebooks/** linguist-documentation
+
+# Documentation
+*.md text diff=markdown
+*.txt text
+*.rst text
+LICENSE text
+
+# Configs
+*.yml text
+*.yaml text
+*.json text
+*.toml text
+*.ini text
+*.cfg text
+.env* text
+.editor* text
+
+# Shell scripts
+*.sh text eol=lf
+*.bash text eol=lf
+*.zsh text eol=lf
+
+# Data formats
+*.csv text
+*.tsv text
+*.json text
+*.xml text
+
+# Binary files
+*.db binary
+*.p binary
+*.pkl binary
+*.pickle binary
+*.pyc binary
+*.pyd binary
+*.pyo binary
+*.bin binary
+
+# Exclude files from GitHub language statistics
+.gitattributes linguist-generated=true
+.gitignore linguist-generated=true
