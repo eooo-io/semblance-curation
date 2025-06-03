@@ -5,6 +5,30 @@
 [![Documentation](https://img.shields.io/badge/docs-mkdocs-blue.svg?style=for-the-badge)](https://docs.semblance-curation.io)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=for-the-badge)](LICENSE)
 
+## Tech Stack
+
+### Core Components
+[![Argilla](https://img.shields.io/badge/Argilla-FF4B4B.svg?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgdmlld0JveD0iMCAwIDI0IDI0Ij48L3N2Zz4=&logoColor=white)](https://argilla.io/)
+[![Weaviate](https://img.shields.io/badge/Weaviate-3b82f6.svg?style=for-the-badge&logo=weaviate&logoColor=white)](https://weaviate.io/)
+[![Ollama](https://img.shields.io/badge/Ollama-black.svg?style=for-the-badge&logo=llama&logoColor=white)](https://ollama.ai/)
+
+### Data Storage
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Redis](https://img.shields.io/badge/Redis-DC382D.svg?style=for-the-badge&logo=redis&logoColor=white)](https://redis.io/)
+[![Elasticsearch](https://img.shields.io/badge/Elasticsearch-005571.svg?style=for-the-badge&logo=elasticsearch&logoColor=white)](https://www.elastic.co/)
+[![MinIO](https://img.shields.io/badge/MinIO-C72E49.svg?style=for-the-badge&logo=minio&logoColor=white)](https://min.io/)
+
+### Development & ML Tools
+[![Jupyter](https://img.shields.io/badge/Jupyter-F37626.svg?style=for-the-badge&logo=jupyter&logoColor=white)](https://jupyter.org/)
+[![MLflow](https://img.shields.io/badge/MLflow-0194E2.svg?style=for-the-badge&logo=mlflow&logoColor=white)](https://mlflow.org/)
+[![Ray](https://img.shields.io/badge/Ray-028CF0.svg?style=for-the-badge&logo=ray&logoColor=white)](https://www.ray.io/)
+
+### Monitoring & Observability
+[![Prometheus](https://img.shields.io/badge/Prometheus-E6522C.svg?style=for-the-badge&logo=prometheus&logoColor=white)](https://prometheus.io/)
+[![Grafana](https://img.shields.io/badge/Grafana-F46800.svg?style=for-the-badge&logo=grafana&logoColor=white)](https://grafana.com/)
+[![Loki](https://img.shields.io/badge/Loki-F5A800.svg?style=for-the-badge&logo=grafana&logoColor=white)](https://grafana.com/oss/loki/)
+[![Jaeger](https://img.shields.io/badge/Jaeger-66CFE3.svg?style=for-the-badge&logo=jaeger&logoColor=white)](https://www.jaegertracing.io/)
+
 A comprehensive platform designed for organizations and researchers who need to build, maintain, and curate their own machine learning datasets. It provides an end-to-end solution for data collection, annotation, preprocessing, and quality control, with built-in support for multi-modal data types.
 
 ## Quick Start
@@ -28,7 +52,7 @@ Comprehensive documentation is available at [docs.semblance-curation.io](https:/
 
 - Detailed installation instructions
 - Configuration guides
-- Deployment options (local and cloud)
+- [Deployment examples](https://docs.semblance-curation.io/deployment/examples) (AWS, GCP, Azure)
 - ML pipeline examples
 - API reference
 - Contributing guidelines
@@ -51,16 +75,6 @@ Then visit `http://localhost:8000`
 - High availability configuration
 - Extensive API support
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Support
-
-- Documentation: [docs.semblance-curation.io](https://docs.semblance-curation.io)
-- Issues: [GitHub Issues](https://github.com/yourusername/semblance-curation/issues)
-- Discussions: [GitHub Discussions](https://github.com/yourusername/semblance-curation/discussions)
-
 ## Overview
 
 Semblance Curation is a comprehensive platform designed for organizations and researchers who need to build, maintain, and curate their own machine learning datasets. It provides an end-to-end solution for data collection, annotation, preprocessing, and quality control, with built-in support for multi-modal data types including text, audio, images, and video.
@@ -73,474 +87,26 @@ Semblance Curation is a comprehensive platform designed for organizations and re
 - Perform quality control on training data
 - Deploy local LLM inference for data processing
 
-### Deployment Options
+### System Requirements
 
-#### Local Deployment Requirements
-- Minimum 32GB RAM
+#### Minimum Requirements
+- 32GB RAM
 - 8+ CPU cores
 - NVIDIA GPU with 8GB+ VRAM (recommended)
 - 500GB+ SSD storage
 - Ubuntu 20.04+ or similar Linux distribution
 
-#### Cloud Deployment Example (AWS)
+For detailed deployment instructions and requirements, see our [deployment documentation](https://docs.semblance-curation.io/deployment/examples).
 
-```yaml
-# aws/terraform/main.tf
-provider "aws" {
-  region = "us-west-2"
-}
+## License
 
-module "semblance_cluster" {
-  source = "./modules/semblance"
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-  instance_type = "g4dn.2xlarge"  # 8 vCPUs, 32GB RAM, 1 NVIDIA T4 GPU
-  volume_size   = 500             # GB
-  
-  # Networking
-  vpc_id        = module.vpc.vpc_id
-  subnet_ids    = module.vpc.private_subnets
-  
-  # Security
-  ssh_key_name  = "semblance-key"
-  allowed_ips   = ["your-ip-range"]
-  
-  # Monitoring
-  enable_cloudwatch = true
-  
-  # Backup
-  backup_retention_days = 30
-}
+## Support
 
-# Optional: Add Elastic IP for stable access
-resource "aws_eip" "semblance" {
-  instance = module.semblance_cluster.instance_id
-  vpc      = true
-}
-```
-
-### Cloud Deployment Examples
-
-#### Google Cloud Platform (GCP)
-```terraform
-# gcp/terraform/main.tf
-provider "google" {
-  project = var.project_id
-  region  = "us-central1"
-}
-
-# VPC Configuration
-resource "google_compute_network" "semblance_vpc" {
-  name                    = "semblance-vpc"
-  auto_create_subnetworks = false
-}
-
-# GPU-enabled Instance Template
-resource "google_compute_instance_template" "semblance" {
-  name        = "semblance-template"
-  description = "Semblance Curation instance template with GPU"
-
-  machine_type = "n1-standard-8"  # 8 vCPUs, 30 GB memory
-
-  disk {
-    source_image = "ubuntu-os-cloud/ubuntu-2004-lts"
-    auto_delete  = true
-    boot         = true
-    disk_size_gb = 500
-  }
-
-  guest_accelerator {
-    type  = "nvidia-tesla-t4"
-    count = 1
-  }
-
-  network_interface {
-    network = google_compute_network.semblance_vpc.name
-    access_config {}
-  }
-
-  metadata = {
-    startup-script = file("${path.module}/startup-script.sh")
-  }
-
-  service_account {
-    scopes = ["cloud-platform"]
-  }
-}
-
-# Cloud Storage for Backups
-resource "google_storage_bucket" "semblance_backup" {
-  name     = "semblance-backup-${var.project_id}"
-  location = "US"
-  
-  versioning {
-    enabled = true
-  }
-  
-  lifecycle_rule {
-    condition {
-      age = 30
-    }
-    action {
-      type = "Delete"
-    }
-  }
-}
-```
-
-#### Microsoft Azure
-```terraform
-# azure/terraform/main.tf
-provider "azurerm" {
-  features {}
-}
-
-resource "azurerm_resource_group" "semblance" {
-  name     = "semblance-resources"
-  location = "eastus"
-}
-
-# Virtual Network
-resource "azurerm_virtual_network" "semblance" {
-  name                = "semblance-network"
-  resource_group_name = azurerm_resource_group.semblance.name
-  location            = azurerm_resource_group.semblance.location
-  address_space       = ["10.0.0.0/16"]
-}
-
-# GPU-enabled VM
-resource "azurerm_linux_virtual_machine" "semblance" {
-  name                = "semblance-machine"
-  resource_group_name = azurerm_resource_group.semblance.name
-  location            = azurerm_resource_group.semblance.location
-  size                = "Standard_NC6s_v3"  # 6 vCPUs, 112 GB RAM, 1 NVIDIA Tesla V100
-  admin_username      = "adminuser"
-
-  network_interface_ids = [
-    azurerm_network_interface.semblance.id,
-  ]
-
-  admin_ssh_key {
-    username   = "adminuser"
-    public_key = file("~/.ssh/id_rsa.pub")
-  }
-
-  os_disk {
-    caching              = "ReadWrite"
-    storage_account_type = "Premium_LRS"
-    disk_size_gb        = 500
-  }
-
-  source_image_reference {
-    publisher = "Canonical"
-    offer     = "UbuntuServer"
-    sku       = "18.04-LTS"
-    version   = "latest"
-  }
-}
-
-# Managed Kubernetes for Scaling
-resource "azurerm_kubernetes_cluster" "semblance" {
-  name                = "semblance-aks"
-  location            = azurerm_resource_group.semblance.location
-  resource_group_name = azurerm_resource_group.semblance.name
-  dns_prefix          = "semblance"
-
-  default_node_pool {
-    name       = "default"
-    node_count = 1
-    vm_size    = "Standard_DS2_v2"
-  }
-
-  identity {
-    type = "SystemAssigned"
-  }
-}
-```
-
-### Additional ML Pipeline Examples
-
-#### Text Classification Pipeline
-```python
-# pipelines/text_classification.py
-from typing import List, Dict
-import torch
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
-from torch.utils.data import DataLoader, Dataset
-
-class TextClassificationPipeline:
-    def __init__(self, model_name: str = "bert-base-uncased", num_labels: int = 2):
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-        self.model = AutoModelForSequenceClassification.from_pretrained(
-            model_name, num_labels=num_labels
-        )
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.model.to(self.device)
-        
-    def train(
-        self,
-        train_texts: List[str],
-        train_labels: List[int],
-        batch_size: int = 16,
-        num_epochs: int = 3,
-    ):
-        dataset = TextDataset(train_texts, train_labels, self.tokenizer)
-        dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
-        
-        optimizer = torch.optim.AdamW(self.model.parameters(), lr=2e-5)
-        
-        for epoch in range(num_epochs):
-            self.model.train()
-            for batch in dataloader:
-                optimizer.zero_grad()
-                outputs = self.model(**batch)
-                loss = outputs.loss
-                loss.backward()
-                optimizer.step()
-                
-    @torch.no_grad()
-    def predict(self, texts: List[str]) -> List[Dict[str, float]]:
-        self.model.eval()
-        inputs = self.tokenizer(
-            texts,
-            padding=True,
-            truncation=True,
-            return_tensors="pt"
-        ).to(self.device)
-        
-        outputs = self.model(**inputs)
-        probs = torch.nn.functional.softmax(outputs.logits, dim=-1)
-        
-        return [
-            {f"class_{i}": p for i, p in enumerate(prob)}
-            for prob in probs.cpu().numpy()
-        ]
-```
-
-#### Image Segmentation Pipeline
-```python
-# pipelines/image_segmentation.py
-import torch
-import torch.nn as nn
-from torchvision.models.segmentation import deeplabv3_resnet50
-from PIL import Image
-import torchvision.transforms as T
-
-class ImageSegmentationPipeline:
-    def __init__(self, num_classes: int):
-        self.model = deeplabv3_resnet50(num_classes=num_classes)
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.model.to(self.device)
-        
-        self.transform = T.Compose([
-            T.ToTensor(),
-            T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-        ])
-        
-    def process_image(self, image: Image.Image) -> torch.Tensor:
-        input_tensor = self.transform(image)
-        input_batch = input_tensor.unsqueeze(0).to(self.device)
-        
-        with torch.no_grad():
-            output = self.model(input_batch)['out'][0]
-        
-        return output.argmax(0).cpu()
-```
-
-### High Availability Configuration
-
-#### Kubernetes HA Setup
-```yaml
-# config/kubernetes/ha-config.yml
-apiVersion: v1
-kind: Service
-metadata:
-  name: semblance-lb
-spec:
-  type: LoadBalancer
-  ports:
-  - port: 80
-  selector:
-    app: semblance
-
----
-apiVersion: apps/v1
-kind: StatefulSet
-metadata:
-  name: semblance
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: semblance
-  serviceName: semblance
-  template:
-    metadata:
-      labels:
-        app: semblance
-    spec:
-      affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: app
-                operator: In
-                values:
-                - semblance
-            topologyKey: "kubernetes.io/hostname"
-      containers:
-      - name: semblance
-        image: semblance:latest
-        resources:
-          limits:
-            nvidia.com/gpu: 1
-        volumeMounts:
-        - name: data
-          mountPath: /data
-  volumeClaimTemplates:
-  - metadata:
-      name: data
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      resources:
-        requests:
-          storage: 100Gi
-```
-
-### Enhanced Monitoring Dashboards
-
-#### Data Quality Dashboard
-```json
-{
-  "dashboard": {
-    "title": "Data Quality Overview",
-    "panels": [
-      {
-        "title": "Label Distribution",
-        "type": "piechart",
-        "metrics": ["label_counts"],
-        "options": {
-          "legend": {"show": true},
-          "tooltip": {"show": true}
-        }
-      },
-      {
-        "title": "Feature Correlation Matrix",
-        "type": "heatmap",
-        "metrics": ["feature_correlations"],
-        "options": {
-          "colorScale": "RdYlBu"
-        }
-      },
-      {
-        "title": "Data Completeness",
-        "type": "gauge",
-        "metrics": ["completeness_score"],
-        "thresholds": [
-          {"value": 0, "color": "red"},
-          {"value": 0.7, "color": "yellow"},
-          {"value": 0.9, "color": "green"}
-        ]
-      }
-    ]
-  }
-}
-```
-
-#### ML Pipeline Performance Dashboard
-```json
-{
-  "dashboard": {
-    "title": "ML Pipeline Performance",
-    "panels": [
-      {
-        "title": "Training Progress",
-        "type": "graph",
-        "metrics": [
-          "training_loss",
-          "validation_loss",
-          "learning_rate"
-        ],
-        "yaxes": [
-          {"format": "short"},
-          {"format": "scientific"}
-        ]
-      },
-      {
-        "title": "Model Metrics",
-        "type": "stat",
-        "metrics": [
-          "accuracy",
-          "f1_score",
-          "precision",
-          "recall"
-        ]
-      },
-      {
-        "title": "Resource Usage",
-        "type": "graph",
-        "metrics": [
-          "gpu_memory_used",
-          "cpu_usage",
-          "memory_usage"
-        ]
-      }
-    ]
-  }
-}
-```
-
-### Data Quality Monitoring Rules
-
-```yaml
-# config/monitoring/data-quality-rules.yml
-rules:
-  - name: missing_values
-    description: "Check for missing values in critical fields"
-    condition: "missing_value_rate > 0.1"
-    severity: "high"
-    actions:
-      - notify_team
-      - log_incident
-      - pause_pipeline
-
-  - name: label_imbalance
-    description: "Monitor class distribution in training data"
-    condition: "max_to_min_class_ratio > 10"
-    severity: "medium"
-    actions:
-      - notify_team
-      - trigger_resampling
-
-  - name: feature_drift
-    description: "Monitor feature distribution changes"
-    condition: "ks_test_pvalue < 0.05"
-    severity: "high"
-    actions:
-      - notify_team
-      - trigger_retraining
-
-  - name: data_freshness
-    description: "Monitor data freshness"
-    condition: "max_data_age > 7d"
-    severity: "medium"
-    actions:
-      - notify_team
-      - trigger_data_collection
-
-metrics:
-  collection_interval: 1h
-  aggregation_window: 24h
-  storage_retention: 30d
-
-alerting:
-  channels:
-    - slack: "#data-quality-alerts"
-    - email: "ml-team@company.com"
-  throttling:
-    min_interval: 1h
-    max_alerts_per_day: 10
-```
+- Documentation: [docs.semblance-curation.io](https://docs.semblance-curation.io)
+- Issues: [GitHub Issues](https://github.com/yourusername/semblance-curation/issues)
+- Discussions: [GitHub Discussions](https://github.com/yourusername/semblance-curation/discussions)
 
 ## Features
 
